@@ -21,7 +21,7 @@ const AddProductModal = () => {
   const [visible, setVisible] = useState(false);
   // The following states are used to store the values of the input fields
   const [productName, setProductName] = useState("");
-  const [productPrice, setProductPrice] = useState<string | number>(0);
+  const [productPrice, setProductPrice] = useState(0);
   const [productImage, setProductImage] = useState("");
   const [productDescription, setProductDescription] = useState("");
   const [productLocation, setProductLocation] = useState("");
