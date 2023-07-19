@@ -204,7 +204,12 @@ const AddProductModal = () => {
                       }}
                       required
                       type="number"
+                      min="1"
+                      step="any"
                       className="w-full bg-gray-100 p-2 mt-2 mb-3"
+                      {productPrice <= 0 && (
+                        <p className="text-red-500">Product price must be greater than zero.</p>
+                      )}
                     />
                   </div>
                   {/* Button to close the modal */}
