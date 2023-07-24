@@ -4,7 +4,7 @@
 
 ## The Demo:
 
-TBA
+https://celo-frontend-development.vercel.app/
 
 
 ![image](https://github.com/maryjobs/celo-frontend-development/assets/109237574/5a17e441-b2c7-43fc-a11c-4bf301eb6834)
