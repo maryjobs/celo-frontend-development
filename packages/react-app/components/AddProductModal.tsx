@@ -21,7 +21,7 @@ const AddProductModal = () => {
   const [visible, setVisible] = useState(false);
   // The following states are used to store the values of the input fields
   const [productName, setProductName] = useState("");
-  const [productPrice, setProductPrice] = useState<string | number>(0);
+  const [productPrice, setProductPrice] = useState(0);
   const [productImage, setProductImage] = useState("");
   const [productDescription, setProductDescription] = useState("");
   const [productLocation, setProductLocation] = useState("");
@@ -243,7 +243,12 @@ const AddProductModal = () => {
                       }}
                       required
                       type="number"
+                      min="1"
+                      step="any"
                       className="w-full bg-gray-100 p-2 mt-2 mb-3"
+                      {productPrice <= 0 && (
+                        <p className="text-red-500">Product price must be greater than zero.</p>
+                      )}
                     />
                   </div>
                   {/* Button to close the modal */}
