@@ -28,7 +28,6 @@ const ChangePriceModal = ({id}:any) => {
    const isComplete = () => {
   
     if (Number(newprice) < 1) {
-      toast.warn("Please enter a valid number (> 0)")
       return false;
     }
     return true
@@ -61,7 +60,7 @@ const ChangePriceModal = ({id}:any) => {
             throw "Failed to add product";
           }
           setLoading("Adding...");
-          if (!isComplete) throw new Error("Please fill all fields");
+          if (!isComplete()) throw new Error("Please enter a valid number that is greater than 0");
           // Add the product by calling the changeProductPrice function on the marketplace contract
           const tx = await changePrice();
           setLoading("Waiting...");

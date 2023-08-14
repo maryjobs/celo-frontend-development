@@ -38,14 +38,24 @@ const Product = ({ id, setError, setLoading, clear }: any) => {
     const { address } = useAccount();
     // Use the useContractCall hook to read the data of the product with the id passed in, from the marketplace contract
     const { data: rawProduct }: any = useContractCall("readProduct", [id], true);
-    // Use the useContractSend hook to purchase the product with the id passed in, via the marketplace contract
-    const { writeAsync: purchase } = useContractSend("buyProduct", [Number(id)]);
-  
+    
     const [product, setProduct] = useState<Product | null>(null);
-    // Use the useContractApprove hook to approve the spending of the product's price, for the ERC20 cUSD contract
+    const [quantity, setQuantity] = useState<number>(1);
+
+
+    // Use the useContractSend hook to purchase the product with the id passed in, via the marketplace contract
+    const { writeAsync: purchase } = useContractSend("buyProduct", [Number(id), quantity]);
+
+   
+    // Multiply the product price by quantity for the approval
+    const totalAmount = (product?.price || 0) * quantity;
+
+     // Use the useContractApprove hook to approve the spending of the product's price, for the ERC20 cUSD contract
     const { writeAsync: approve } = useContractApprove(
-      product?.price?.toString() || "0"
+     totalAmount.toString()
     );
+
+    
     // Use the useConnectModal hook to trigger the wallet connect modal
     const { openConnectModal } = useConnectModal();
     // Format the product data that we read from the smart contract
@@ -68,20 +78,22 @@ const Product = ({ id, setError, setLoading, clear }: any) => {
     }, [getFormatProduct]);
 
      // Define the handlePurchase function which handles the purchase interaction with the smart contract
-  const handlePurchase = async () => {
-    if (!approve || !purchase) {
-      throw "Failed to purchase this product";
-    }
-    // Approve the spending of the product's price, for the ERC20 cUSD contract
-    const approveTx = await approve();
-    // Wait for the transaction to be mined, (1) is the number of confirmations we want to wait for
-    await approveTx.wait(1);
-    setLoading("Purchasing...");
-    // Once the transaction is mined, purchase the product via our marketplace contract buyProduct function
-    const res = await purchase();
-    // Wait for the transaction to be mined
-    await res.wait();
+     const handlePurchase = async () => {
+      if (!approve || !purchase) {
+        throw "Failed to purchase this product";
+      }
+     
+
+     // Approve the spending of the product's price, for the ERC20 cUSD contract
+     const approveTx = await approve();
+    
+      await approveTx.wait(1);
+      setLoading("Purchasing...");
+      // Send the quantity to the purchase function
+      const res = await purchase();
+      await res.wait();
   };
+  
 
    
 
@@ -123,7 +135,7 @@ const Product = ({ id, setError, setLoading, clear }: any) => {
   // Return the JSX for the product component
   return (
     <div className={"shadow-lg relative rounded-b-lg"}>
-      <p className="group">
+      
         <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden bg-white xl:aspect-w-7 xl:aspect-h-8 ">
           {/* Show the number of products sold */}
           <span
@@ -168,17 +180,29 @@ const Product = ({ id, setError, setLoading, clear }: any) => {
               <img src={"/location.svg"} alt="Location" className={"w-6"} />
               <h3 className="pt-1 text-sm text-gray-700">{product.location}</h3>
             </div>
+
+            <div>
+    <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">Quantity</label>
+    <input 
+        type="number" 
+        name="quantity" 
+        id="quantity" 
+        value={quantity} 
+        onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value)))}
+        className="mt-1 p-2 w-full rounded-md border border-gray-300"
+    />
+</div>
+
            
             {/* Buy button that calls the purchaseProduct function on click */}
            
             <button
-              onClick={purchaseProduct}
-              className="mt-4 mb-4 h-14 w-full border-[1px] border-gray-500 text-black p-2 rounded-lg hover:bg-black hover:text-white"
-            >
-              {/* Show the product price in cUSD */}
-              Buy for {productPriceFromWei} cUSD
-            </button>
-          
+  onClick={purchaseProduct}
+  className="mt-4 mb-4 h-14 w-full border-[1px] border-gray-500 text-black p-2 rounded-lg hover:bg-black hover:text-white"
+>
+  Buy {quantity} for {ethers.utils.formatEther((product.price * quantity).toString())} cUSD
+</button>
+
             
 
             { address === product.owner &&(
@@ -186,7 +210,7 @@ const Product = ({ id, setError, setLoading, clear }: any) => {
             )}
           </div>
         </div>
-      </p>
+      
     </div>
   );
 };

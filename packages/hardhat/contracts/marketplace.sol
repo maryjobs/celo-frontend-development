@@ -137,9 +137,13 @@ contract Marketplace {
     // Buys a product from the marketplace
     function buyProduct(
         // Index of the product
-        uint256 _index
+        uint256 _index,
+        // Quantity of product to be bought
+        uint256 _quantity
     ) public payable {
         // Transfers the tokens from the buyer to the seller
+
+        uint256 price = products[_index].price * _quantity;
         require(
             IERC20Token(cUsdTokenAddress).transferFrom(
                 // Sender's address is the buyer
@@ -147,13 +151,13 @@ contract Marketplace {
                 // Receiver's address is the seller
                 products[_index].owner,
                 // Amount of tokens to transfer is the price of the product
-                products[_index].price
+                price
             ),
             // If transfer fails, throw an error message
             "Transfer failed."
         );
         // Increases the number of times the product has been sold
-        products[_index].sold++;
+        products[_index].sold = products[_index].sold + _quantity;
     }
 
     // Returns the number of products in the marketplace
